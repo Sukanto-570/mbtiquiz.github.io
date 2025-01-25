@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MBTI Quiz</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .question {
+            display: none;
+        }
+        .active {
+            display: block;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        .radio-group {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+        }
+        #results {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="quiz" class="section">
+        <div id="personal-info">
+            <h2>Personal Information</h2>
+            <input type="text" id="name" placeholder="Your name" required>
+            <input type="number" id="age" placeholder="Your age" required>
+            <input type="text" id="city" placeholder="Your city" required>
+            <input type="text" id="goals" placeholder="Your life goals" required>
+            <button onclick="startQuiz()">Start Quiz</button>
+        </div>
+
+        <div id="questions">
+            <div class="question" data-trait="E">
+                <h3>How do you prefer to recharge?</h3>
+                <div class="radio-group">
+                    <label><input type="radio" name="q1" value="E">Being around people energizes me</label>
+                    <label><input type="radio" name="q1" value="I">I need alone time to recharge</label>
+                </div>
+            </div>
+
+            <div class="question" data-trait="S">
+                <h3>When solving problems, do you:</h3>
+                <div class="radio-group">
+                    <label><input type="radio" name="q2" value="S">Focus on concrete facts and details</label>
+                    <label><input type="radio" name="q2" value="N">Look for patterns and possibilities</label>
+                </div>
+            </div>
+
+            <div class="question" data-trait="T">
+                <h3>When making decisions, what do you prioritize?</h3>
+                <div class="radio-group">
+                    <label><input type="radio" name="q3" value="T">Logic and objective analysis</label>
+                    <label><input type="radio" name="q3" value="F">Personal values and emotions</label>
+                </div>
+            </div>
+
+            <div class="question" data-trait="J">
+                <h3>How do you prefer to work?</h3>
+                <div class="radio-group">
+                    <label><input type="radio" name="q4" value="J">With a clear plan and schedule</label>
+                    <label><input type="radio" name="q4" value="P">Flexibly and spontaneously</label>
+                </div>
+            </div>
+
+            <div class="question" data-trait="E">
+                <h3>In group situations, do you:</h3>
+                <div class="radio-group">
+                    <label><input type="radio" name="q5" value="E">Speak up and participate actively</label>
+                    <label><input type="radio" name="q5" value="I">Observe and listen more</label>
+                </div>
+            </div>
+
+            <div class="question" data-trait="S">
+                <h3>What interests you more?</h3>
+                <div class="radio-group">
+                    <label><input type="radio" name="q6" value="S">Present reality and what is</label>
+                    <label><input type="radio" name="q6" value="N">Future possibilities and what could be</label>
+                </div>
+            </div>
+
+            <div class="question" data-trait="T">
+                <h3>When giving feedback, do you tend to be:</h3>
+                <div class="radio-group">
+                    <label><input type="radio" name="q7" value="T">Direct and objective</label>
+                    <label><input type="radio" name="q7" value="F">Tactful and considerate</label>
+                </div>
+            </div>
+
+            <div class="question" data-trait="J">
+                <h3>How do you handle deadlines?</h3>
+                <div class="radio-group">
+                    <label><input type="radio" name="q8" value="J">Plan ahead and finish early</label>
+                    <label><input type="radio" name="q8" value="P">Adapt as you go and work under pressure</label>
+                </div>
+            </div>
+
+            <button onclick="nextQuestion()" id="next-btn" style="display: none;">Next</button>
+        </div>
+    </div>
+
+    <div id="results" class="section">
+        <h2>Your MBTI Profile</h2>
+        <p id="mbti-result"></p>
+        <div id="visualization"></div>
+    </div>
+
+    <script>
+        let currentQuestion = -1;
+        let scores = {
+            E: 0, I: 0,
+            S: 0, N: 0,
+            T: 0, F: 0,
+            J: 0, P: 0
+        };
+
+        function startQuiz() {
+            document.getElementById('personal-info').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'block';
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            const questions = document.querySelectorAll('.question');
+            
+            if (currentQuestion >= 0) {
+                questions[currentQuestion].classList.remove('active');
+                const selected = document.querySelector(`input[name="q${currentQuestion + 1}"]:checked`);
+                if (selected) {
+                    scores[selected.value]++;
+                }
+            }
+            
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                questions[currentQuestion].classList.add('active');
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            const mbtiResult = [
+                scores.E > scores.I ? 'E' : 'I',
+                scores.S > scores.N ? 'S' : 'N',
+                scores.T > scores.F ? 'T' : 'F',
+                scores.J > scores.P ? 'J' : 'P'
+            ].join('');
+
+            document.getElementById('mbti-result').textContent = `Your MBTI type is: ${mbtiResult}`;
+            document.getElementById('quiz').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+
+            // Create p5.js visualization
+            new p5(sketch);
+        }
+
+        const sketch = (p) => {
+            p.setup = () => {
+                p.createCanvas(600, 400);
+                p.background(240);
+                drawSpectrum();
+            };
+
+            function drawSpectrum() {
+                const pairs = [
+                    ['Introvert', 'Extrovert', scores.I, scores.E],
+                    ['Sensing', 'Intuitive', scores.S, scores.N],
+                    ['Thinking', 'Feeling', scores.T, scores.F],
+                    ['Judging', 'Perceiving', scores.J, scores.P]
+                ];
+
+                const barHeight = 40;
+                const barWidth = 400;
+                const startX = 100;
+                const startY = 50;
+
+                pairs.forEach((pair, i) => {
+                    const y = startY + i * (barHeight + 30);
+                    
+                    // Draw bar
+                    p.stroke(0);
+                    p.fill(230);
+                    p.rect(startX, y, barWidth, barHeight);
+
+                    // Draw marker
+                    const total = pair[2] + pair[3];
+                    const position = startX + (barWidth * pair[3]) / total;
+                    p.fill(0, 120, 255);
+                    p.noStroke();
+                    p.triangle(
+                        position, y - 5,
+                        position - 5, y - 15,
+                        position + 5, y - 15
+                    );
+
+                    // Labels
+                    p.textAlign(p.RIGHT);
+                    p.text(pair[0], startX - 10, y + barHeight/2);
+                    p.textAlign(p.LEFT);
+                    p.text(pair[1], startX + barWidth + 10, y + barHeight/2);
+                });
+            }
+        };
+    </script>
+</body>
+</html>
